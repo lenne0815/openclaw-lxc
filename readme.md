@@ -206,3 +206,29 @@ If the installer complains about **systemd user services** or permission errors:
 /usr/local/bin/openclaw gateway --foreground
 
 ```
+
+
+✅ **Sicherheitskonfiguration aktualisiert!**
+
+OpenClaw startet neu, um die Änderungen anzuwenden.
+
+**Neue denyCommands (gesperrte Aktionen):**
+
+| Command | Was blockiert wird |
+|---------|-------------------|
+| `camera.snap` | Kamera-Fotos |
+| `camera.clip` | Kamera-Videos |
+| `screen.record` | Bildschirmaufnahme |
+| `calendar.add` | Events erstellen |
+| `calendar.delete` | **Events löschen** 🆕 |
+| `contacts.add` | Kontakte erstellen |
+| `contacts.delete` | **Kontakte löschen** 🆕 |
+| `reminders.add` | Erinnerungen erstellen |
+| `gmail.delete` | **Emails löschen** 🆕 |
+
+**Was ich weiterhin kann:**
+- ✅ Kalender lesen
+- ✅ Emails lesen & **senden**
+- ✅ Kontakte lesen
+
+Damit ist deine Daten vor versehentlichem Löschen geschützt. Ich kann immer noch nützliche Dinge tun (Emails senden, Termine anzeigen), aber keine Daten zerstören. 🦾
