@@ -24,6 +24,81 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 
 nano /etc/systemd/system/openclaw.service
 
+
+The error message **"Don't run this as root!"** is happening because Homebrew explicitly forbids being installed by the `root` user for security reasons.
+
+Since you are logged in as `root` (likely on a VPS or container), **you should stop trying to use Homebrew.** It is much faster and cleaner to use Debian's native package manager (`apt`) instead.
+
+Here are your two best options to fix this:
+
+### Option 1: The "Native" Fix (Recommended)
+
+**Forget about Homebrew.** Since you are already `root`, you can install everything OpenClaw needs directly using `apt`. This avoids the error entirely.
+
+Run these 3 commands in order:
+
+1. **Install Git and Tools:**
+```bash
+apt update && apt install -y git curl build-essential
+
+```
+
+
+2. **Install Node.js 22 (Required for OpenClaw):**
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs
+
+```
+
+
+3. **Install OpenClaw:**
+Now that Node is installed, the OpenClaw installer won't look for `brew`:
+```bash
+npm install -g openclaw
+# OR if you are using the install script:
+curl -fsSL https://openclaw.ai/install.sh | bash
+
+```
+
+
+
+---
+
+### Option 2: The "I Must Use Brew" Fix
+
+If you absolutely require Homebrew for some specific reason, you must create a new "regular" user to run it.
+
+1. **Create a new user (e.g., "clawuser"):**
+```bash
+adduser clawuser
+
+```
+
+
+2. **Give the user permission to use sudo:**
+```bash
+usermod -aG sudo clawuser
+
+```
+
+
+3. **Switch to that user:**
+```bash
+su - clawuser
+
+```
+
+
+4. **Run the Brew command again:**
+Now that your prompt is `clawuser@Openclaw`, the command will work:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+```
+
+
+
 [Unit]
 Description=OpenClaw Gateway Service
 After=network.target
