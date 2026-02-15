@@ -22,6 +22,32 @@ use console on your computer to access
 
 curl -fsSL https://openclaw.ai/install.sh | bash
 
+nano /etc/systemd/system/openclaw.service
+
+[Unit]
+Description=OpenClaw Gateway Service
+After=network.target
+
+[Service]
+# Since you are likely root in this container, we run as root.
+# If you created a specific user, change 'root' to that username.
+User=root
+Group=root
+
+# The command to start the gateway
+ExecStart=/usr/bin/openclaw gateway
+
+# Restart automatically if it crashes
+Restart=always
+RestartSec=5
+
+# Output logs to systemd journal
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
 Here is a clean, GitHub-ready Markdown snippet. You can copy and paste this directly into a `README.md` or a Gist.
 
 I have consolidated the repeated `apt update` commands and grouped the installations for efficiency.
