@@ -1,7 +1,3 @@
-This is a professionally formatted version of your instructions, optimized for a GitHub `README.md` or a Gist. I’ve cleaned up the redundancy, organized the technical specs into a table, and ensured the `systemd` service block is correctly syntax-highlighted.
-
----
-
 # OpenClaw Installation Guide: Debian 13 (LXC)
 
 This guide covers the installation of OpenClaw on a **Debian 13 (Trixie)** unprivileged LXC container.
