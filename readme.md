@@ -98,23 +98,4 @@ systemctl enable openclaw
 systemctl start openclaw
 
 ```
-
----
-
-## 🔒 Security Policy (Updated)
-
-The following commands are currently **denied** to prevent accidental data loss:
-
-| Command | Action Blocked |
-| --- | --- |
-| `camera.snap` / `.clip` | Photo/Video capture |
-| `screen.record` | Screen recording |
-| `calendar.delete` | **Deleting** events 🆕 |
-| `contacts.delete` | **Deleting** contacts 🆕 |
-| `gmail.delete` | **Deleting** emails 🆕 |
-
-**Permitted Actions:** ✅ Read Calendars, ✅ Read/Send Emails, ✅ Read Contacts.
-
----
-
 **Would you like me to generate a shell script that automates this entire process from start to finish?**
