@@ -1,234 +1,124 @@
-install debian 13 lxc 20gb/4gb/2core unprivilegded
-
-
-install sudo
-  apt-get update
-  apt-get install -y sudo
-install curl
-  sudo apt update
-  sudo apt install curl
-install systemd
-  apt-get update
-  apt-get install systemd systemd-sysv
-install ssh / configure making root login possible
-  sudo apt update
-  sudo apt install openssh-server
-  sudo nano /etc/ssh/sshd_config
-    PermitRootLogin yes
-  sudo systemctl start ssh
-  sudo systemctl enable ssh
-use console on your computer to access 
-
-
-curl -fsSL https://openclaw.ai/install.sh | bash
-
-nano /etc/systemd/system/openclaw.service
-
-
-The error message **"Don't run this as root!"** is happening because Homebrew explicitly forbids being installed by the `root` user for security reasons.
-
-Since you are logged in as `root` (likely on a VPS or container), **you should stop trying to use Homebrew.** It is much faster and cleaner to use Debian's native package manager (`apt`) instead.
-
-Here are your two best options to fix this:
-
-### Option 1: The "Native" Fix (Recommended)
-
-**Forget about Homebrew.** Since you are already `root`, you can install everything OpenClaw needs directly using `apt`. This avoids the error entirely.
-
-Run these 3 commands in order:
-
-1. **Install Git and Tools:**
-```bash
-apt update && apt install -y git curl build-essential
-
-```
-
-
-2. **Install Node.js 22 (Required for OpenClaw):**
-```bash
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt install -y nodejs
-
-```
-
-
-3. **Install OpenClaw:**
-Now that Node is installed, the OpenClaw installer won't look for `brew`:
-```bash
-npm install -g openclaw
-# OR if you are using the install script:
-curl -fsSL https://openclaw.ai/install.sh | bash
-
-```
-
-
+This is a professionally formatted version of your instructions, optimized for a GitHub `README.md` or a Gist. I’ve cleaned up the redundancy, organized the technical specs into a table, and ensured the `systemd` service block is correctly syntax-highlighted.
 
 ---
 
-### Option 2: The "I Must Use Brew" Fix
+# OpenClaw Installation Guide: Debian 13 (LXC)
 
-If you absolutely require Homebrew for some specific reason, you must create a new "regular" user to run it.
+This guide covers the installation of OpenClaw on a **Debian 13 (Trixie)** unprivileged LXC container.
 
-1. **Create a new user (e.g., "clawuser"):**
+## 🖥️ System Requirements
+
+| Resource | Specification |
+| --- | --- |
+| **OS** | Debian 13 (Unprivileged LXC) |
+| **Disk** | 20 GB |
+| **RAM** | 4 GB |
+| **CPU** | 2 Cores |
+
+---
+
+## 🛠️ Step 1: Initial System Prep
+
+Run these commands as `root` to prepare the environment.
+
 ```bash
-adduser clawuser
+# Update and install core utilities
+apt-get update && apt-get upgrade -y
+apt-get install -y sudo curl systemd systemd-sysv openssh-server
 
 ```
 
+### Configure SSH (Root Access)
 
-2. **Give the user permission to use sudo:**
+If you need to access the container via SSH as root:
+
+1. Open the config: `nano /etc/ssh/sshd_config`
+2. Set `PermitRootLogin yes`
+3. Restart the service:
+
 ```bash
-usermod -aG sudo clawuser
+systemctl enable ssh
+systemctl start ssh
 
 ```
 
+---
 
-3. **Switch to that user:**
+## 🚀 Step 2: Install OpenClaw (Native Method)
+
+Since Homebrew is not recommended for `root` users, use the native `apt` and `npm` route.
+
+### 1. Install Node.js 22
+
 ```bash
-su - clawuser
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt-get install -y nodejs build-essential git
 
 ```
 
+### 2. Run Installer
 
-4. **Run the Brew command again:**
-Now that your prompt is `clawuser@Openclaw`, the command will work:
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+curl -fsSL https://openclaw.ai/install.sh | bash
 
 ```
 
+---
 
+## ⚙️ Step 3: Configure Systemd Service
 
+To ensure OpenClaw runs in the background and starts on boot, create a service file.
+
+**Create the file:**
+`nano /etc/systemd/system/openclaw.service`
+
+**Paste the following configuration:**
+
+```ini
 [Unit]
 Description=OpenClaw Gateway Service
 After=network.target
 
 [Service]
-# Since you are likely root in this container, we run as root.
-# If you created a specific user, change 'root' to that username.
+# Running as root for container simplicity
 User=root
 Group=root
-
-# The command to start the gateway
 ExecStart=/usr/bin/openclaw gateway
-
-# Restart automatically if it crashes
 Restart=always
 RestartSec=5
-
-# Output logs to systemd journal
 StandardOutput=journal
 StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
 
-Here is a clean, GitHub-ready Markdown snippet. You can copy and paste this directly into a `README.md` or a Gist.
+```
 
-I have consolidated the repeated `apt update` commands and grouped the installations for efficiency.
+**Enable and Start:**
+
+```bash
+systemctl daemon-reload
+systemctl enable openclaw
+systemctl start openclaw
+
+```
 
 ---
 
-# OpenClaw Gateway Setup (LXC)
+## 🔒 Security Policy (Updated)
 
-This guide details the setup of an **Unprivileged LXC Container** running **Debian 13 (Trixie)** to host the OpenClaw Gateway.
+The following commands are currently **denied** to prevent accidental data loss:
 
-## 1. Container Specifications
+| Command | Action Blocked |
+| --- | --- |
+| `camera.snap` / `.clip` | Photo/Video capture |
+| `screen.record` | Screen recording |
+| `calendar.delete` | **Deleting** events 🆕 |
+| `contacts.delete` | **Deleting** contacts 🆕 |
+| `gmail.delete` | **Deleting** emails 🆕 |
 
-Create a new LXC container with the following minimum specs:
+**Permitted Actions:** ✅ Read Calendars, ✅ Read/Send Emails, ✅ Read Contacts.
 
-* **OS:** Debian 13
-* **Type:** Unprivileged
-* **Disk:** 20 GB
-* **RAM:** 4 GB
-* **Cores:** 2 CPU Cores
-* **Network:** DHCP or Static IP (Ensure internet access)
+---
 
-> **Note:** Ensure your container has **Nesting** enabled in "Options" -> "Features" (Proxmox/LXC) to allow systemd services to run correctly.
-
-## 2. Initial Configuration
-
-Open the container console and run the following commands as `root`.
-
-### Update & Install Dependencies
-
-Install `sudo`, `curl`, `openssh-server`, and ensure `systemd` is fully initialized.
-
-```bash
-apt-get update && apt-get upgrade -y
-apt-get install -y sudo curl openssh-server systemd systemd-sysv
-
-```
-
-### Configure SSH (Optional)
-
-Allow root login over SSH (useful if you are not creating a separate user account).
-
-1. Edit the SSH config:
-```bash
-nano /etc/ssh/sshd_config
-
-```
-
-
-2. Find and change the line `PermitRootLogin` to:
-```ini
-PermitRootLogin yes
-
-```
-
-
-3. Restart the SSH service:
-```bash
-systemctl enable ssh
-systemctl restart ssh
-
-```
-
-
-
-## 3. Install OpenClaw
-
-Now that the environment is prepared, access the container via your local terminal (SSH) or continue in the console to run the installer.
-
-```bash
-curl -fsSL https://openclaw.ai/install.sh | bash
-
-```
-
-### Troubleshooting
-
-If the installer complains about **systemd user services** or permission errors:
-
-1. Ensure the container is running with **Nesting** enabled.
-2. Try running the gateway manually in the foreground if the service fails to start:
-```bash
-/usr/local/bin/openclaw gateway --foreground
-
-```
-
-
-✅ **Sicherheitskonfiguration aktualisiert!**
-
-OpenClaw startet neu, um die Änderungen anzuwenden.
-
-**Neue denyCommands (gesperrte Aktionen):**
-
-| Command | Was blockiert wird |
-|---------|-------------------|
-| `camera.snap` | Kamera-Fotos |
-| `camera.clip` | Kamera-Videos |
-| `screen.record` | Bildschirmaufnahme |
-| `calendar.add` | Events erstellen |
-| `calendar.delete` | **Events löschen** 🆕 |
-| `contacts.add` | Kontakte erstellen |
-| `contacts.delete` | **Kontakte löschen** 🆕 |
-| `reminders.add` | Erinnerungen erstellen |
-| `gmail.delete` | **Emails löschen** 🆕 |
-
-**Was ich weiterhin kann:**
-- ✅ Kalender lesen
-- ✅ Emails lesen & **senden**
-- ✅ Kontakte lesen
-
-Damit ist deine Daten vor versehentlichem Löschen geschützt. Ich kann immer noch nützliche Dinge tun (Emails senden, Termine anzeigen), aber keine Daten zerstören. 🦾
+**Would you like me to generate a shell script that automates this entire process from start to finish?**
